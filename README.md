@@ -128,15 +128,6 @@ snakemake --use-conda --cores 4
 
 The pipeline generates several key outputs in the `results/` directory:
 
-### Main Results
-- **`results/trees/corrected_tree.newick`**: Final statistically corrected and rooted phylogenetic tree
-- **`results/trees/raw_tree.newick`**: Initial tree before statistical correction
-- **`results/distances/sequence_identity_matrix.tsv`**: Pairwise sequence identity matrix
-
-### Intermediate Files
-- **`results/embeddings/`**: ProstT5 embeddings for each sequence
-- **`results/distances/raw_distances.tsv`**: Raw distance calculations
-- **`results/reports/`**: Quality control and analysis reports
 
 ## Pipeline Workflow
 
@@ -161,21 +152,15 @@ The pipeline generates several key outputs in the `results/` directory:
 ### Basic Usage
 ```bash
 # Run with default settings
-snakemake --use-conda --cores 8
-```
+snakemake --use-conda --cores 8 -s workflow/rules/fold_tree_prostT5 --config folder=./sequences 
+````
 
 ### Cluster Execution
 ```bash
 # For SLURM clusters
 snakemake --cluster-config config/cluster_config.yaml \
           --cluster "sbatch --partition=normal --time=4:00:00" \
-          --jobs 20 --use-conda
-```
-
-### Custom Parameters
-```bash
-# Run with specific configuration
-snakemake --use-conda --cores 4 --config min_sequence_length=50
+          --jobs 20 --use-conda --directory #your dataset path#
 ```
 
 ## Troubleshooting
@@ -185,17 +170,12 @@ snakemake --use-conda --cores 4 --config min_sequence_length=50
 2. **Memory errors**: Increase memory allocation in cluster config for large datasets
 3. **Slow performance**: Use more cores or consider splitting large sequence sets
 
-### Getting Help
-- Check log files in `logs/` directory for detailed error messages
-- Validate input sequences are in proper FASTA format
-- Ensure sufficient disk space for temporary files
-
 ## Citation
 
 If you use this pipeline, please cite:
 - **Foldseek**: [Steinegger & Söding, 2022]
 - **ProstT5**: [Heinzinger et al., 2023]
-- **Foldtree** (original): [Citation needed]
+- **Foldtree** : [Moi et al., 2025]
 
 ## Contributing
 
@@ -203,5 +183,4 @@ This pipeline is under active development. Please report issues or contribute im
 
 ## License
 
-[License information]
-
+This project is licensed under the MIT License. See the LICENSE file for details.
