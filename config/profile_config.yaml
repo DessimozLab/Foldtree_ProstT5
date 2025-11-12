@@ -1,0 +1,10 @@
+# Snakemake profile for cluster execution
+# Place this in .snakemake/profiles/cluster/config.yaml
+
+cluster: "sbatch --account={cluster.account} --partition={cluster.partition} --time={cluster.time} --mem={cluster.mem} --cpus-per-task={cluster.cpus} --output={cluster.output} --error={cluster.error}"
+cluster-config: "config/cluster_config.yaml"
+jobs: 50
+use-conda: True
+conda-prefix: ".snakemake/conda"
+latency-wait: 60
+restart-times: 3

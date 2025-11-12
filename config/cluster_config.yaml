@@ -1,0 +1,26 @@
+# Snakemake cluster configuration
+# This file can be used with --cluster-config flag
+
+__default__:
+    account: "your_account"
+    partition: "normal"
+    time: "1:00:00"
+    mem: "4G"
+    cpus: 1
+    output: "logs/slurm/{rule}_{wildcards}_%j.out"
+    error: "logs/slurm/{rule}_{wildcards}_%j.err"
+
+preprocess_data:
+    time: "2:00:00"
+    mem: "8G"
+    cpus: 2
+
+run_analysis:
+    time: "4:00:00"
+    mem: "16G"
+    cpus: 4
+
+generate_report:
+    time: "30:00"
+    mem: "4G"
+    cpus: 1

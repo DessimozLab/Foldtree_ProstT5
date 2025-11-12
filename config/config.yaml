@@ -1,0 +1,21 @@
+# Configuration file for Foldtree_ProstT5 Snakemake pipeline
+
+# Sample information
+samples:
+  - "sample1"
+  - "sample2"
+
+# Input data paths
+data_dir: "data"
+reference: "resources/reference.fasta"
+
+# Output directories
+results_dir: "results"
+logs_dir: "logs"
+
+# Parameters
+threads: 4
+memory: "8G"
+
+# Tool-specific parameters
+# Add your specific tool configurations here

@@ -1,0 +1,131 @@
+
+#once snakemake is installed use the following command to test the struct tree
+import snakemake.utils
+snakemake.utils.min_version("7.8.0")
+snake_dir = workflow.basedir
+
+rootdir = ''.join([ sub + '/' for sub in snake_dir.split('/')[:-1] ] )
+print(rootdir)
+mattypes = ['foldtree']
+
+configfile: rootdir+ "/config/config_vars.yaml"
+# remote homologues search parameters
+
+foldseekpath = config["foldseek_path"]
+
+rule all:
+	input:
+		expand("{folder}/{mattype}_struct_tree.PP.nwk.rooted.final", folder = config["folder"], mattype = mattypes),
+
+rule mad_root_post:
+	conda:
+		"Foldtree_ProstT5"
+	input:
+		"{folder}/{mattype}_struct_tree.PP.nwk"
+	output:
+		"{folder}/{mattype}_struct_tree.PP.nwk.rooted.final"
+	log:
+		"{folder}/logs/{mattype}_struct_madroot_post.log"
+	script:
+		'../src/process_madroot.py'
+
+rule mad_root_struct:
+	conda:
+		"Foldtree_ProstT5"
+	input:
+		"{folder}/{mattype}_struct_tree.PP.nwk"
+	output:
+		"{folder}/{mattype}_struct_tree.PP.nwk.rooted"
+	log:
+		"{folder}/logs/{mattype}_struct_madroot.log"
+	shell:
+		rootdir+'madroot/mad {wildcards.folder}/{wildcards.mattype}_struct_tree.PP.nwk'
+
+rule postprocess:
+	conda:
+		"Foldtree_ProstT5"
+	input:
+		"{folder}/{mattype}_struct_tree.nwk"
+	output:
+		"{folder}/{mattype}_struct_tree.PP.nwk"
+	log:
+		"{folder}/logs/{mattype}_struct_postprocess.log"
+	script:
+		'../src/postprocess.py'
+
+rule quicktree:
+	conda:
+		"Foldtree_ProstT5"
+	input:
+		"{folder}/{mattype}_fastmemat.txt"
+	output:
+		"{folder}/{mattype}_struct_tree.nwk"
+	log:
+		"{folder}/logs/{mattype}_quicktree.log"
+	shell:
+		'quicktree -i m {wildcards.folder}/{wildcards.mattype}_fastmemat.txt > {wildcards.folder}/{wildcards.mattype}_struct_tree.nwk '
+
+rule foldseek2distmat:
+	conda:
+		"Foldtree_ProstT5"
+	input:
+		"{folder}/allvall_1.csv"
+	output:
+		"{folder}/foldtree_fastmemat.txt",
+		"{folder}/alntmscore_fastmemat.txt",
+		"{folder}/lddt_fastmemat.txt",
+	params:
+		fmt = None,
+	log:
+		"{folder}/logs/foldseek2distmat.log"
+	script:
+		"../src/foldseekres2distmat_simple.py"
+
+rule foldseek_allvall_1:
+	conda:
+		"Foldtree_ProstT5"
+	input:
+		"{folder}/db"
+	output:
+		"{folder}/allvall_1.csv"
+	log:
+		"{folder}/logs/foldseekallvall.log"
+	shell:
+		foldseekpath + " easy-search {wildcards.folder}/db {wildcards.folder}/db {wildcards.folder}/allvall_1.csv {wildcards.folder}/tmp --format-output 'query,target,fident,alnlen,mismatch,gapopen,qstart,qend,tstart,tend,evalue,bits' --exhaustive-search --alignment-type 2 -e inf --threads " + str(config['foldseek_cores']) 
+
+rule create_foldseek_db:
+	conda:
+		"Foldtree_ProstT5"
+	input:
+		fasta="{folder}/sequences.fasta"
+	output:
+		db="{folder}/db"
+	params:
+		prostt5_weights=config.get("prostt5_weights", "weights"),
+		gpu=config.get("foldseek_gpu", 0),
+	log:
+		"{folder}/logs/create_foldseek_db.log"
+	shell:
+		"""
+		if [ {params.gpu} -gt 0 ]; then
+			{foldseekpath} createdb {input.fasta} {output.db} --prostt5-model {params.prostt5_weights} --gpu {params.gpu}
+		else
+			{foldseekpath} createdb {input.fasta} {output.db} --prostt5-model {params.prostt5_weights}
+		fi
+		"""
+
+rule dl_ids_sequences:
+	conda: 
+		#"config/fold_tree.yaml"
+		"Foldtree_ProstT5"
+	input:
+		ids="{folder}/identifiers.txt",
+	output:
+		"{folder}/sequence_dataset.csv",
+		"{folder}/sequences.fasta",
+	log:
+		"{folder}/logs/dlsequences.log"
+	params:
+		custom_seqs=config["custom_seqs"],
+	script:
+		"../src/dl_sequences.py"

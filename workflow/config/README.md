@@ -1,0 +1,5 @@
+In the config_vars.yaml file you can use the provided version of foldseek which was used for benchmarking purposes ( version: ) by setting the foldseek_path variable to provided. You can also use the latest version available on bioconda by setting this argument to 'foldseek'. 
+
+The custom_structs variable should be set to False if you don't want to provide your own structures and would instead like to download them from the AFDB using uniprot identifiers. You can also change this option and other options on the command line by using snakemake's configuration flag. ( e.g. --config custom_structs=True)
+
+Using the fold_tree workflow you should specify the folder using the --config flag ( e.g. --config folder=./testdata ). Using the benchmarking pipeline you should use the directory flag to run the full 12 structure trees + 4 sequence trees for each protein family ( e.g. --directory OMA_data/LUCA ). This will create jobs for all of the protein families in this folder.

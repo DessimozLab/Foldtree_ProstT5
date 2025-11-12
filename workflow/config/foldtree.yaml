@@ -1,0 +1,27 @@
+name: Foldtree_ProstT5
+
+channels:
+  - bioconda
+  - conda-forge
+  - nodefaults
+dependencies:
+  - foldseek
+  - snakedeploy
+  - snakefmt
+  - toytree=2.0.1
+  - snakemake>=5.15.0
+  - pip
+  - quicktree
+  - python=3.10
+  - pandas
+  - scipy
+  - biopython
+  - numpy
+  - pip:
+    - tqdm
+    - wget
+    - numpy
+    - statsmodels
+    - toyplot
+    - requests
+    

@@ -1,0 +1,11 @@
+#Plddt filetering parameters for models
+filter: True
+filter_min: 10
+filter_avg: 50
+
+#Foldseek parameters
+foldseek_path: foldseek
+foldseek_cores: 1
+
+#If set to True then uses sequences provided by the user. This will skip the downloading step
+custom_seqs: False
