@@ -67,35 +67,11 @@ Place your protein sequences in FASTA format in `data/sequences/`:
 cp your_sequences.fasta data/sequences/
 ```
 
-### 4. Configure the Pipeline
-Edit `config/config.yaml` to specify:
-```yaml
-# Input sequences
-input_sequences: "data/sequences/your_sequences.fasta"
-
-# ProstT5 database path
-prostT5_db: "data/prostT5_weights/ProstT5"
-
-# Analysis parameters
-min_sequence_length: 30
-max_sequence_length: 1000
-similarity_threshold: 0.3
-
-# Tree construction parameters
-correction_method: "jukes_cantor"  # Options: jukes_cantor, kimura
-rooting_method: "midpoint"         # Options: midpoint, outgroup
-```
-
 ### 5. Run the Pipeline
 ```bash
-# Test the workflow (dry run)
-./run_pipeline.sh --dry-run
 
-# Run with 4 cores
-./run_pipeline.sh --cores 4
-
-# Or run directly with Snakemake
-snakemake --use-conda --cores 4
+#run with Snakemake
+snakemake -s workflow/rules/fold_tree_prostT5 --use-conda --cores 4 --config folder=./data/sequences 
 ```
 
 ## Output
