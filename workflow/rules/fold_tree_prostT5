@@ -33,7 +33,7 @@ rule mad_root_post:
 	log:
 		"{folder}/logs/{mattype}_struct_madroot_post.log"
 	script:
-		'../src/process_madroot.py'
+		'../../src/process_madroot.py'
 
 rule mad_root_struct:
 	conda:
@@ -57,7 +57,7 @@ rule postprocess:
 	log:
 		"{folder}/logs/{mattype}_struct_postprocess.log"
 	script:
-		'../src/postprocess.py'
+		'../../src/postprocess.py'
 
 rule quicktree:
 	conda:
@@ -132,4 +132,4 @@ rule dl_ids_sequences:
 	params:
 		custom_seqs=config["custom_seqs"],
 	script:
-		"../src/dl_sequences.py"
+		"../../src/dl_sequences.py"
