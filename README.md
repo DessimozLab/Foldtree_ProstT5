@@ -74,9 +74,6 @@ cp your_sequences.fasta data/sequences/
 snakemake -s workflow/rules/fold_tree_prostT5 --use-conda --cores 4 --config folder=./data/sequences 
 ```
 
-## Output
-
-The pipeline generates several key outputs in the `results/` directory:
 
 
 ## Pipeline Workflow
