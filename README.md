@@ -1,5 +1,7 @@
 # Foldtree_ProstT5
 
+![Foldtree_ProstT5 Logo](logo.png)
+
 ⚠️ **CAUTION: This pipeline has not been benchmarked yet. Use at your own risk and validate results carefully.**
 
 A Snakemake pipeline that provides a Foldtree replacement for phylogenetic tree construction when protein structures are not available. This pipeline leverages ProstT5 embeddings through Foldseek to generate statistically corrected and rooted sequence identity trees.
