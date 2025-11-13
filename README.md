@@ -1,6 +1,6 @@
 # Foldtree_ProstT5
 
-![Foldtree_ProstT5 Logo](logo.png)
+<img src="logo.png" alt="Foldtree_ProstT5 Logo" height="800">
 
 ⚠️ **CAUTION: This pipeline has not been benchmarked yet. Use at your own risk and validate results carefully.**
 
