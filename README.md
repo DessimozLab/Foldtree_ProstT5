@@ -84,8 +84,8 @@ The pipeline generates several key outputs in the `results/` directory:
 1. **Sequence Preprocessing**: Validates and filters input sequences
 2. **ProstT5 Embedding**: Generates structural embeddings using Foldseek + ProstT5
 3. **Distance Calculation**: Computes sequence identity from embeddings
-4. **Tree Construction**: Builds initial phylogenetic tree from distance matrix
-5. **Statistical Correction**: Applies evolutionary distance corrections
+4. **Statistical Correction**: Applies evolutionary distance corrections
+5. **Tree Construction**: Builds initial phylogenetic tree from distance matrix
 6. **Tree Rooting**: Roots the tree using specified method
 
 ## Limitations & Important Notes
@@ -97,13 +97,6 @@ The pipeline generates several key outputs in the `results/` directory:
 - **Requires ProstT5 weights**: Must download large database files (~XX GB)
 - **Not benchmarked**: Results should be validated against known phylogenies when possible
 
-## Usage Examples
-
-### Basic Usage
-```bash
-# Run with default settings
-snakemake --use-conda --cores 8 -s workflow/rules/fold_tree_prostT5 --config folder=./sequences 
-````
 
 ### Cluster Execution
 ```bash
