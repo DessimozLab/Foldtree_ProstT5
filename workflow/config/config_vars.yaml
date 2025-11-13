@@ -9,3 +9,4 @@ foldseek_cores: 1
 
 #If set to True then uses sequences provided by the user. This will skip the downloading step
 custom_seqs: False
+prostt5_weights: /home/cactuskid/projects/Foldtree_ProstT5/weights

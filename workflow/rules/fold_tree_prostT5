@@ -13,6 +13,12 @@ configfile: rootdir+ "/config/config_vars.yaml"
 
 foldseekpath = config["foldseek_path"]
 
+#if variable folder not in config set to default value
+if "folder" not in config:
+	#match folder paths with */sequences.fasta with glob wildcards
+		folders = glob_wildcards("{folders}/sequences.fasta").folders
+		config['folder']  = folders
+
 rule all:
 	input:
 		expand("{folder}/{mattype}_struct_tree.PP.nwk.rooted.final", folder = config["folder"], mattype = mattypes),
@@ -72,14 +78,12 @@ rule foldseek2distmat:
 		"{folder}/allvall_1.csv"
 	output:
 		"{folder}/foldtree_fastmemat.txt",
-		"{folder}/alntmscore_fastmemat.txt",
-		"{folder}/lddt_fastmemat.txt",
 	params:
 		fmt = None,
 	log:
 		"{folder}/logs/foldseek2distmat.log"
 	script:
-		"../src/foldseekres2distmat_simple.py"
+		"../../src/foldseekres2distmat_simple.py"
 
 rule foldseek_allvall_1:
 	conda:
