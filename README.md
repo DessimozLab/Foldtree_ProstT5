@@ -35,38 +35,6 @@ foldseek databases ProstT5 weights tmp
 
 **Important**: Ensure you have sufficient disk space (~XX GB) for the ProstT5 database.
 
-## Directory Structure
-
-```
-├── Snakefile                 # Main workflow file
-├── config/                   # Configuration files
-│   ├── config.yaml          # Main configuration
-│   ├── cluster_config.yaml  # Cluster-specific settings
-│   └── profile_config.yaml  # Snakemake profile configuration
-├── workflow/                 # Workflow components
-│   ├── rules/               # Rule definitions
-│   │   ├── common.smk       # Common functions and constraints
-│   │   ├── preprocessing.smk # Sequence preprocessing
-│   │   └── fold_tree_prostT5.smk # ProstT5-based tree construction
-│   ├── scripts/             # Custom scripts
-│   │   ├── prostT5_analysis.py # ProstT5 embedding analysis
-│   │   └── tree_correction.py # Statistical correction and rooting
-│   └── envs/                # Conda environment files
-│       ├── foldseek.yaml    # Foldseek environment
-│       └── phylo.yaml       # Phylogenetic tools environment
-├── data/                    # Input data
-│   ├── sequences/           # Input protein sequences (FASTA)
-│   └── prostT5_weights/     # ProstT5 database weights
-├── resources/               # Reference files and static resources
-├── results/                 # Output files
-│   ├── embeddings/          # ProstT5 embeddings
-│   ├── distances/           # Sequence identity matrices
-│   ├── trees/               # Generated phylogenetic trees
-│   └── reports/             # Analysis reports
-├── logs/                    # Log files
-└── run_pipeline.sh          # Convenience script to run pipeline
-```
-
 ## Quick Start
 
 ### 1. Installation
@@ -87,6 +55,11 @@ make setup
 # This may take several hours and requires significant disk space
 foldseek databases ProstT5 data/prostT5_weights tmp
 ```
+
+make sure to set the correct path in the config file at `workflow/config/config_vars.yaml`:
+```yaml
+prostt5_weights: /path/to/your/Foldtree_ProstT5/data/prostT5_weights
+``` 
 
 ### 3. Prepare Input Data
 Place your protein sequences in FASTA format in `data/sequences/`:
