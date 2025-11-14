@@ -75,7 +75,6 @@ snakemake -s workflow/rules/fold_tree_prostT5 --use-conda --cores 4 --config fol
 ```
 
 
-
 ## Pipeline Workflow
 
 1. **Sequence Preprocessing**: Validates and filters input sequences

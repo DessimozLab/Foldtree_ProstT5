@@ -92,24 +92,27 @@ def convert_prostT5_to_gguf(model_dir, output_file):
     """
     print(f"Converting ProstT5 model from {model_dir} to GGUF format...")
     
-    try:
-        save_model_to_gguf(model_dir, output_file)
-        print(f"Successfully saved model to {output_file}")
+    #try:
+    save_model_to_gguf(model_dir, output_file)
+    print(f"Successfully saved model to {output_file}")
+    
+    # Verify file was created
+    if os.path.exists(output_file):
+        size_mb = os.path.getsize(output_file) / (1024 * 1024)
+        print(f"Output file size: {size_mb:.2f} MB")
         
-        # Verify file was created
-        if os.path.exists(output_file):
-            size_mb = os.path.getsize(output_file) / (1024 * 1024)
-            print(f"Output file size: {size_mb:.2f} MB")
-        
-    except Exception as e:
-        print(f"Error converting model: {str(e)}")
+    #except Exception as e:
+    #    print(f"Error converting model: {str(e)}")
+    #    #print traceback for debugging
+    #    import traceback
+    #    print(traceback.format_exc())
 
 if __name__ == "__main__":
     # Example usage
     parser = argparse.ArgumentParser(description='Convert ProstT5 model to GGUF format')
     parser.add_argument('model_dir', help='Directory containing the retrained ProstT5 model')
-    parser.add_argument('output_file', help='Output GGUF file path')
-    
+    parser.add_argument('output_file', help='Output GGUF file path') 
+
     args = parser.parse_args()
-    
+
     convert_prostT5_to_gguf(args.model_dir, args.output_file)
