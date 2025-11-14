@@ -1,0 +1,30 @@
+# Example configuration for running fasta23di workflow
+# Copy this file and modify the paths and parameters as needed
+
+# Model settings
+model:
+  model_path: "Rostlab/ProstT5"  # Or path to local model
+  checkpoint_path: null  # Path to fine-tuned checkpoint if available
+
+# Inference parameters
+inference:
+  batch_size: 4  # Adjust based on your GPU memory
+  deterministic: true  # Use deterministic decoding for reproducible results
+
+# Foldseek settings
+foldseek:
+  path: "foldseek"  # Path to foldseek executable
+  threads: 4
+
+# Workflow control
+workflow:
+  run_fasta23di: true
+  create_combined_db: true
+  run_fasta2foldseekdb: false  # Set to true if you want to export FASTA files
+  cleanup_temp_files: true
+  keep_intermediate_fastas: false
+
+# Resource management
+resources:
+  max_memory_gb: 8
+  max_threads: 4

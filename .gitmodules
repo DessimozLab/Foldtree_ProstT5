@@ -1,0 +1,3 @@
+[submodule "esmologs"]
+	path = esmologs
+	url = git@github.com:seanrjohnson/esmologs.git

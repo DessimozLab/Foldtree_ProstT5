@@ -1,0 +1,144 @@
+# Configuration for fasta23di and fasta2foldseekdb workflow
+# This YAML file contains all parameters needed to run the fasta23di inference
+# and database creation pipeline
+
+# ============================================================================
+# FASTA23DI CONFIGURATION
+# ============================================================================
+
+# Model configuration
+model:
+  # Path or HuggingFace hub name for the base model+tokenizer
+  model_path: "Rostlab/ProstT5"
+  
+  # Optional: Path to a PyTorch checkpoint for fine-tuned models
+  # Leave empty/null if using the base model
+  checkpoint_path: null
+  
+  # Model precision and device settings
+  device: "auto"  # "auto", "cuda", "cpu", or specific device like "cuda:0"
+  use_half_precision: true  # Use FP16 on GPU for memory efficiency
+
+# Inference parameters
+inference:
+  # Batch size for model inference
+  batch_size: 8
+  
+  # Decoding strategy
+  deterministic: true  # Use deterministic decoding (beam search) vs stochastic
+  
+  # Generation parameters for stochastic decoding (used when deterministic=false)
+  stochastic_params:
+    do_sample: true
+    num_beams: 3
+    top_p: 0.95
+    temperature: 1.2
+    top_k: 6
+    repetition_penalty: 1.2
+    early_stopping: true
+  
+  # Generation parameters for deterministic decoding (used when deterministic=true)
+  deterministic_params:
+    do_sample: false
+    num_beams: 4
+    early_stopping: true
+
+# Input/Output configuration
+io:
+  # Input FASTA file with amino acid sequences
+  input_fasta: "{folder}/sequences.fasta"
+  
+  # Output FASTA file for 3Di sequences
+  output_3di_fasta: "{folder}/sequences_3di.fasta"
+  
+  # Output directory for temporary files
+  temp_dir: "{folder}/tmp"
+  
+  # Line width for FASTA output formatting
+  fasta_line_width: 80
+
+# ============================================================================
+# FASTA2FOLDSEEKDB CONFIGURATION
+# ============================================================================
+
+# Database creation settings
+database:
+  # Input database basename (without extensions)
+  input_db_basename: "{folder}/temp_combined_db"
+  
+  # Output basename for FASTA files
+  output_basename: "{folder}/db_export"
+  
+  # Generated files will be:
+  # - {output_basename}.3di.fasta (3Di sequences)
+  # - {output_basename}.pep.fasta (protein sequences)
+
+# ============================================================================
+# FOLDSEEK INTEGRATION
+# ============================================================================
+
+# Foldseek configuration
+foldseek:
+  # Path to foldseek executable
+  path: "foldseek"
+  
+  # Number of threads for foldseek operations
+  threads: 4
+  
+  # GPU settings
+  gpu_id: 0  # GPU device ID, set to 0 to disable GPU
+  
+  # Database creation parameters
+  createdb_args: "--add-self-matches"
+
+# ============================================================================
+# WORKFLOW CONTROL
+# ============================================================================
+
+# Workflow execution settings
+workflow:
+  # Enable/disable different workflow steps
+  run_fasta23di: true
+  run_fasta2foldseekdb: false  # Usually not needed in the main workflow
+  create_combined_db: true
+  
+  # Cleanup settings
+  cleanup_temp_files: true
+  keep_intermediate_fastas: false
+  
+  # Logging
+  log_level: "INFO"  # "DEBUG", "INFO", "WARNING", "ERROR"
+  log_to_file: true
+
+# ============================================================================
+# RESOURCE MANAGEMENT
+# ============================================================================
+
+# Resource allocation
+resources:
+  # Memory limits
+  max_memory_gb: 16
+  
+  # CPU settings
+  max_threads: 8
+  
+  # GPU memory management
+  gpu_memory_fraction: 0.9
+
+# ============================================================================
+# ADVANCED SETTINGS
+# ============================================================================
+
+# Advanced configuration options
+advanced:
+  # Sequence preprocessing
+  replace_ambiguous_residues: true  # Replace U,Z,O,B with X
+  min_sequence_length: 10
+  max_sequence_length: 5000
+  
+  # Model optimization
+  torch_compile: false  # Use torch.compile for potential speedup (experimental)
+  
+  # Error handling
+  continue_on_error: false
+  max_retries: 3

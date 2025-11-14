@@ -10,7 +10,6 @@ from transformers import T5Tokenizer, AutoModelForSeq2SeqLM
 
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
-
 def read_fasta(fpath):
     """
     Simple FASTA iterator. Yields (header, sequence) pairs.

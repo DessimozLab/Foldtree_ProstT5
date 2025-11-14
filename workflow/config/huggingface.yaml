@@ -1,0 +1,115 @@
+# HuggingFace model configuration for Foldtree_ProstT5
+# This file contains HuggingFace-specific settings for model loading and inference
+
+# ============================================================================
+# HUGGINGFACE MODEL SETTINGS
+# ============================================================================
+
+huggingface:
+  # Model repository and authentication
+  model_id: "Rostlab/ProstT5"
+  use_auth_token: false  # Set to true if using private models
+  trust_remote_code: false
+  
+  # Model loading options
+  cache_dir: null  # Use default HF cache or specify custom path
+  force_download: false
+  resume_download: true
+  
+  # Tokenizer settings
+  tokenizer:
+    do_lower_case: false
+    padding: "longest"
+    truncation: true
+    max_length: 1024
+    add_special_tokens: true
+  
+  # Model precision and optimization
+  torch_dtype: "auto"  # "auto", "float16", "float32", "bfloat16"
+  device_map: "auto"   # "auto", "balanced", "sequential", or custom mapping
+  low_cpu_mem_usage: true
+  
+  # Generation configuration for AA->3Di translation
+  generation_config:
+    # Default parameters - will be overridden by deterministic/stochastic settings
+    max_length: 1024
+    min_length: 10
+    pad_token_id: 0
+    eos_token_id: 1
+    
+    # Deterministic mode parameters
+    deterministic:
+      do_sample: false
+      num_beams: 4
+      early_stopping: true
+      
+    # Stochastic mode parameters  
+    stochastic:
+      do_sample: true
+      num_beams: 3
+      top_p: 0.95
+      temperature: 1.2
+      top_k: 6
+      repetition_penalty: 1.2
+      early_stopping: true
+
+# ============================================================================
+# ENVIRONMENT AND DEPENDENCIES
+# ============================================================================
+
+environment:
+  # Python environment requirements
+  python_version: ">=3.8"
+  
+  # Required packages
+  required_packages:
+    - torch: ">=2.0.0"
+    - transformers: ">=4.20.0"
+    - tokenizers: ">=0.13.0"
+    - accelerate: ">=0.20.0"
+    - safetensors: ">=0.3.0"
+  
+  # Optional packages for optimization
+  optional_packages:
+    - flash-attn: ">=2.0.0"  # For faster attention computation
+    - bitsandbytes: ">=0.40.0"  # For quantization
+    - optimum: ">=1.8.0"  # For model optimization
+
+# ============================================================================
+# PERFORMANCE OPTIMIZATION
+# ============================================================================
+
+optimization:
+  # Memory optimization
+  gradient_checkpointing: false
+  use_cache: true
+  
+  # Quantization settings (if using bitsandbytes)
+  quantization:
+    load_in_8bit: false
+    load_in_4bit: false
+    bnb_4bit_compute_dtype: "float16"
+    bnb_4bit_use_double_quant: true
+    bnb_4bit_quant_type: "nf4"
+  
+  # Compilation settings (PyTorch 2.0+)
+  torch_compile:
+    enabled: false
+    backend: "inductor"
+    mode: "default"  # "default", "reduce-overhead", "max-autotune"
+
+# ============================================================================
+# LOGGING AND MONITORING
+# ============================================================================
+
+logging:
+  # Transformers logging level
+  transformers_verbosity: "warning"  # "error", "warning", "info", "debug"
+  
+  # Progress tracking
+  show_progress: true
+  progress_bar: true
+  
+  # Model loading info
+  show_model_info: true
+  show_tokenizer_info: false

@@ -1,0 +1,33 @@
+name: fasta23di
+
+channels:
+  - pytorch
+  - nvidia
+  - conda-forge
+  - defaults
+
+dependencies:
+  # Python
+  - python=3.10
+
+  # Core PyTorch with CUDA
+  - pytorch>=2.0.0
+  - pytorch-cuda=11.8
+
+  # Essential HuggingFace
+  - transformers>=4.30.0
+  - tokenizers>=0.13.0
+  - accelerate>=0.20.0
+  - safetensors>=0.3.0
+
+  # Core dependencies
+  - numpy
+  - tqdm
+  - pyyaml
+  - requests
+
+  # Pip essentials
+  - pip
+  - pip:
+    - huggingface_hub
+    - biopython

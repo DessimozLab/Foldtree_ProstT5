@@ -1,4 +1,21 @@
 
+# Foldtree_ProstT5 Snakemake workflow
+# 
+# This workflow supports two modes for database creation:
+# 1. Direct foldseek createdb with ProstT5 model (default)
+#    - Uses the main "Foldtree_ProstT5" conda environment
+#    - Requires foldseek with ProstT5 weights
+# 2. fasta23di.py script to generate 3Di sequences, then foldseek createdb
+#    - Uses specialized "fasta23di" conda environment for inference
+#    - Uses main "Foldtree_ProstT5" environment for database operations
+#    - Requires PyTorch, transformers, and HuggingFace ecosystem
+#
+# Set use_fasta23di: true in config.yaml to use the fasta23di.py approach
+#
+# Environment setup:
+# - For standard mode: conda env create -f workflow/config/foldtree.yaml
+# - For fasta23di mode: ./setup_fasta23di_env.sh (creates both environments)
+
 #once snakemake is installed use the following command to test the struct tree
 import snakemake.utils
 snakemake.utils.min_version("7.8.0")
@@ -8,10 +25,11 @@ rootdir = ''.join([ sub + '/' for sub in snake_dir.split('/')[:-1] ] )
 print(rootdir)
 mattypes = ['foldtree']
 
-configfile: rootdir+ "/config/config_vars.yaml"
+configfile: rootdir+ "/config/config.yaml"
 # remote homologues search parameters
 
-foldseekpath = config["foldseek_path"]
+foldseekpath = config.get("foldseek_path", "foldseek")
+use_fasta23di = config.get("use_fasta23di", False)
 
 #if variable folder not in config set to default value
 if "folder" not in config:
@@ -99,9 +117,13 @@ rule foldseek_allvall_1:
 
 rule create_foldseek_db:
 	conda:
-		"Foldtree_ProstT5"
+		if use_fasta23di:
+			"fasta23di"  # Main environment for huggingface operations
+		else:
+			"Foldtree_ProstT5"  # Standard environment with foldseek + ProstT5
 	input:
-		fasta="{folder}/sequences.fasta"
+		fasta="{folder}/sequences.fasta",
+		env_check="{folder}/.fasta23di_env_checked" if use_fasta23di else []
 	output:
 		db="{folder}/db"
 	params:
@@ -109,14 +131,84 @@ rule create_foldseek_db:
 		gpu=config.get("foldseek_gpu", 0),
 	log:
 		"{folder}/logs/create_foldseek_db.log"
-	shell:
-		"""
-		if [ {params.gpu} -gt 0 ]; then
-			{foldseekpath} createdb {input.fasta} {output.db} --prostt5-model {params.prostt5_weights} --gpu {params.gpu}
-		else
-			{foldseekpath} createdb {input.fasta} {output.db} --prostt5-model {params.prostt5_weights}
-		fi
-		"""
+	run:
+		if use_fasta23di:
+			# Use fasta23di script to generate 3Di sequences, then create combined db with fasta2foldseek
+			shell("""
+				echo "Generating 3Di sequences with fasta23di..." 2>> {log}
+				python {rootdir}src/fasta23di.py {input.fasta} {wildcards.folder}/sequences_3di.fasta \
+					--model-path {params.prostt5_weights} \
+					--batch-size {config.get('fasta23di_batch_size', 8)} \
+					--deterministic \
+					{config.get('fasta23di_extra_args', '')} 2>> {log}
+				
+				echo "Creating Foldseek database using fasta2foldseek..." 2>> {log}
+				python {rootdir}esmologs/src/esmologs/fasta2foldseek.py \
+					--aa {input.fasta} \
+					--tdi {wildcards.folder}/sequences_3di.fasta \
+					--output {output.db} 2>> {log}
+				
+				echo "Foldseek database created successfully using fasta2foldseek" 2>> {log}
+			""")
+		else:
+			# Use standard foldseek createdb with ProstT5 model - use main environment
+			shell("""
+				echo "Using standard foldseek createdb with ProstT5 model..." 2>> {log}
+				if [ {params.gpu} -gt 0 ]; then
+					{foldseekpath} createdb {input.fasta} {output.db} --prostt5-model {params.prostt5_weights} --gpu {params.gpu} 2>> {log}
+				else
+					{foldseekpath} createdb {input.fasta} {output.db} --prostt5-model {params.prostt5_weights} 2>> {log}
+				fi
+				echo "Foldseek database created successfully" 2>> {log}
+			""")
+
+rule check_fasta23di_env:
+	output:
+		temp("{folder}/.fasta23di_env_checked")
+	run:
+		if use_fasta23di:
+			import subprocess
+			import sys
+			
+			# Check if fasta23di conda environment exists
+			try:
+				result = subprocess.run(['conda', 'env', 'list'], capture_output=True, text=True, check=True)
+				if 'fasta23di' not in result.stdout:
+					print("ERROR: fasta23di conda environment not found!")
+					print("Please create it using: ./setup_fasta23di_env.sh")
+					print("Or manually: conda env create -f workflow/config/fasta23di_env.yaml")
+					sys.exit(1)
+				else:
+					print("✓ fasta23di conda environment found")
+			except subprocess.CalledProcessError:
+				print("WARNING: Could not check conda environments")
+			except FileNotFoundError:
+				print("WARNING: conda command not found")
+		shell("touch {output}")
+
+rule cleanup_3di_fasta:
+	conda:
+		"Foldtree_ProstT5"
+	input:
+		db="{folder}/db",
+		fasta_3di="{folder}/sequences_3di.fasta"
+	output:
+		temp("{folder}/.cleanup_3di_done")
+	run:
+		if use_fasta23di:
+			import os
+			import glob
+			# Clean up the 3Di fasta file
+			if os.path.exists(input.fasta_3di):
+				os.remove(input.fasta_3di)
+				print(f"Cleaned up {input.fasta_3di}")
+			# Clean up any remaining temporary database files
+			temp_files = glob.glob(f"{wildcards.folder}/temp_*_db*")
+			for temp_file in temp_files:
+				if os.path.exists(temp_file):
+					os.remove(temp_file)
+					print(f"Cleaned up {temp_file}")
+		shell("touch {output}")
 
 rule dl_ids_sequences:
 	conda: 
